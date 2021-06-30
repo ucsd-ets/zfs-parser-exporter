@@ -19,13 +19,13 @@ func hostname(t *testing.T) (hostname string) {
 func TestSizeToBytes(t *testing.T) {
 	cases := []struct {
 		in   string
-		want int
+		want float64
 	}{
-		{"111K", 111000},
-		{"110T", 110000000000000},
-		{"120M", 120000000},
-		{"135G", 135000000000},
-		{"121", 121},
+		{"111K", float64(111000)},
+		{"110T", float64(110000000000000)},
+		{"120M", float64(120000000)},
+		{"135G", float64(135000000000)},
+		{"121", float64(121)},
 		{"0", 0},
 	}
 
@@ -35,8 +35,7 @@ func TestSizeToBytes(t *testing.T) {
 			t.Fatal(err)
 		}
 		if got != c.want {
-			fmt.Println(got)
-			t.Errorf("SizeToBytes(%q) == %q, want %q", c.in, got, c.want)
+			t.Errorf("SizeToBytes(%s) == %f, want %f", c.in, got, c.want)
 		}
 	}
 

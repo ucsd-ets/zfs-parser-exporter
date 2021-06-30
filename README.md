@@ -1,4 +1,4 @@
-# ZFS Exporter
+# ZFS Parser Exporter
 
 Simple ZFS exporter that relies on parsing the output of `zfs` or `zpool` commands so that you don't have to worry about zfs driver support dependencies.
 

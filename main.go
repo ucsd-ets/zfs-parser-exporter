@@ -93,10 +93,10 @@ func IsLetter(s string) bool {
 	return true
 }
 
-func SizeToBytes(size string) (int, error) {
+func SizeToBytes(size string) (float64, error) {
 	// base case, if single alphanumeric
 	if len(size) == 1 {
-		val, err := strconv.Atoi(size)
+		val, err := strconv.ParseFloat(size, 2)
 		if err != nil {
 			return 0, fmt.Errorf("%v: sizeToBytes", err)
 		}
@@ -104,7 +104,7 @@ func SizeToBytes(size string) (int, error) {
 	}
 
 	lastVal := string(size[len(size)-1:])
-	unconvertedVal, err := strconv.Atoi(size[0 : len(size)-1])
+	unconvertedVal, err := strconv.ParseFloat(size[0:len(size)-1], 2)
 
 	if err != nil {
 		return 0, fmt.Errorf("%v: sizeToBytes", err)
@@ -127,8 +127,8 @@ func SizeToBytes(size string) (int, error) {
 	}
 
 	// no units
-	sizeInt, err := strconv.Atoi(size)
-	return sizeInt, nil
+	sizeFloat, err := strconv.ParseFloat(size, 2)
+	return sizeFloat, nil
 }
 
 func FetchZPools(zpoolCmdPath string, hostname string) ([]ZPool, error) {
