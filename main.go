@@ -140,8 +140,12 @@ func FetchZPools(zpoolCmdPath string, hostname string) ([]ZPool, error) {
 
 	zpools := []ZPool{}
 	splitStatsTbl := strings.Split(outS, "\n")
+	trimLength := 2
+	if len(splitStatsTbl) == 5 {
+		trimLength = 1
+	}
 	// first 3 are headers, last row is just "---"
-	for _, s := range splitStatsTbl[3 : len(splitStatsTbl)-1] {
+	for _, s := range splitStatsTbl[3 : len(splitStatsTbl)-trimLength] {
 		// fields are name, capacity_alloc, capacity_free, ops_read, ops_write, bdw_read, bdw_write
 		fields := strings.Fields(s)
 		labels := map[string]string{"zpool_name": fields[0], "hostname": hostname}
