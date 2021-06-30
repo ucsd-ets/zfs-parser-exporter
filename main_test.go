@@ -65,7 +65,7 @@ func TestRegister(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	gr := NewGaugeRegistry()
+	gr := NewGaugeRegistry("")
 	gr.PrometheusRegistry = prometheus.NewRegistry()
 
 	gr.Register(zpools[0])
