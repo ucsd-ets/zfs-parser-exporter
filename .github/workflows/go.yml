@@ -23,6 +23,15 @@ jobs:
         sudo apt-get update -y
         sudo apt-get install zfsutils-linux -y
         whereis zfs
+        whereis zpool
+
+    - name: Initialize with zpool
+      run: |
+        sudo dd if=/dev/zero of=loopbackfile.img bs=10M count=10
+        du -sh
+        sudo losetup -fP loopbackfile.img
+        sudo losetup -a
+        sudo zpool create tank /dev/loop0
     
     - name: Build
       run: go build -v ./...
