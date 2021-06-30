@@ -132,6 +132,7 @@ func SizeToBytes(size string) (float64, error) {
 }
 
 func FetchZPools(zpoolCmdPath string, hostname string) ([]ZPool, error) {
+	// FIXME move running command to external and pass output into input of this function
 	out, err := exec.Command(zpoolCmdPath, "iostat").Output()
 	if err != nil {
 		return nil, err
