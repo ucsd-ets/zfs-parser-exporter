@@ -131,16 +131,9 @@ func SizeToBytes(size string) (float64, error) {
 	return sizeFloat, nil
 }
 
-func FetchZPools(zpoolCmdPath string, hostname string) ([]ZPool, error) {
-	// FIXME move running command to external and pass output into input of this function
-	out, err := exec.Command(zpoolCmdPath, "iostat").Output()
-	if err != nil {
-		return nil, err
-	}
-	outS := string(out)
-
+func ParseZPoolIOStat(zpoolOutput string, hostname string) ([]ZPool, error) {
 	zpools := []ZPool{}
-	splitStatsTbl := strings.Split(outS, "\n")
+	splitStatsTbl := strings.Split(zpoolOutput, "\n")
 	trimLength := 2
 	if len(splitStatsTbl) == 5 {
 		trimLength = 1
@@ -247,8 +240,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	zpools, err := FetchZPools(*zpoolCmd, hostname)
+	// FIXME move running command to external and pass output into input of this function
+	out, err := exec.Command(*zpoolCmd, "iostat").Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	outS := string(out)
+	zpools, err := ParseZPoolIOStat(outS, hostname)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -263,7 +261,12 @@ func main() {
 
 	go func() {
 		for {
-			zpools, err := FetchZPools(*zpoolCmd, hostname)
+			out, err := exec.Command(*zpoolCmd, "iostat").Output()
+			if err != nil {
+				log.Fatal(err)
+			}
+			outS := string(out)
+			zpools, err := ParseZPoolIOStat(outS, hostname)
 			if err != nil {
 				log.Fatal(err)
 			}
