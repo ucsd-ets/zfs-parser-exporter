@@ -1,5 +1,6 @@
 # .github/workflows/release.yaml
 # https://github.com/marketplace/actions/go-release-binaries
+name: upload binaries
 
 on: 
   release:
