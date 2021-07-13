@@ -3,7 +3,9 @@
 
 on: 
   release:
-    types: [published]
+    types:
+    - published
+    - created
 
 jobs:
   release-linux-amd64:
