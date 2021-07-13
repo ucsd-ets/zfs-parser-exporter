@@ -5,7 +5,6 @@ name: upload binaries
 on: 
   release:
     types:
-    - published
     - created
 
 jobs:
