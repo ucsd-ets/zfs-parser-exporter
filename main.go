@@ -226,9 +226,19 @@ func ParseZPoolIOStat(zpoolOutput string, hostname string) ([]ZPool, error) {
 	return zpools, nil
 }
 
+func RunZpoolIOstat(zpoolCmd *string) (string, error) {
+	out, err := exec.Command(*zpoolCmd, "iostat").Output()
+	outS := string(out)
+	if err != nil || outS == "" {
+		return "No zpools detected", err
+	}
+	return outS, err
+}
+
 /** /UTIL FUNCTIONS **/
 
 func main() {
+
 	runningPort := flag.Int("port", 2112, "Host port for zfs exporter service. Defaults to 2112")
 	zpoolCmd := flag.String("zpool-path", "/sbin/zpool", "Path for zpool command. Defaults to /sbin/zpool")
 	parseSeconds := flag.Int("parse-seconds", 2, "Seconds to wait before rerunning zpool command")
@@ -241,16 +251,16 @@ func main() {
 		log.Fatal(err)
 	}
 	// FIXME move running command to external and pass output into input of this function
-	out, err := exec.Command(*zpoolCmd, "iostat").Output()
+	out, err := RunZpoolIOstat(zpoolCmd)
 	if err != nil {
-		log.Fatal(err)
-	}
-	outS := string(out)
-	zpools, err := ParseZPoolIOStat(outS, hostname)
-	if err != nil {
+		log.Println("NO zpools detected. Are zpools available?")
 		log.Fatal(err)
 	}
 
+	zpools, err := ParseZPoolIOStat(out, hostname)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r := prometheus.NewRegistry()
 	gr := NewGaugeRegistry(*prometheusNamespace)
 	gr.PrometheusRegistry = r
@@ -261,12 +271,11 @@ func main() {
 
 	go func() {
 		for {
-			out, err := exec.Command(*zpoolCmd, "iostat").Output()
+			out, err := RunZpoolIOstat(zpoolCmd)
 			if err != nil {
 				log.Fatal(err)
 			}
-			outS := string(out)
-			zpools, err := ParseZPoolIOStat(outS, hostname)
+			zpools, err := ParseZPoolIOStat(out, hostname)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -279,6 +288,7 @@ func main() {
 
 	handler := promhttp.HandlerFor(r, promhttp.HandlerOpts{})
 	listenAddress := ":" + strconv.Itoa(*runningPort)
+
 	log.Printf("Listening on %s. Running commands every %d seconds", listenAddress, *parseSeconds)
 
 	http.Handle("/metrics", handler)
