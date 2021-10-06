@@ -95,6 +95,7 @@ func main() {
 		log.Println("NO zpools detected. Are zpools available?")
 		log.Fatal(err)
 	}
+	log.Printf("%v", out)
 
 	zpools, err := ParseZPoolIOStat(out, hostname)
 	if err != nil {
@@ -115,6 +116,7 @@ func main() {
 				log.Fatal(err)
 			}
 			zpools, err := ParseZPoolIOStat(out, hostname)
+			log.Printf("Parsed zpools %v", zpools)
 			if err != nil {
 				log.Fatal(err)
 			}
