@@ -8,7 +8,7 @@ import (
 )
 
 func TestRegister(t *testing.T) {
-	mockOut := `              capacity     operations     bandwidth 
+	mockOut := `              capacity     operations     bandwidth
 	pool        alloc   free   read  write   read  write
 	----------  -----  -----  -----  -----  -----  -----
 	tank         200M   792M      0      0      0    310
@@ -32,7 +32,7 @@ func TestRegister(t *testing.T) {
 
 func TestParseZPoolIOStat(t *testing.T) {
 	// only 1 zpool
-	mockOut := `              capacity     operations     bandwidth 
+	mockOut := `              capacity     operations     bandwidth
 	pool        alloc   free   read  write   read  write
 	----------  -----  -----  -----  -----  -----  -----
 	tank         200M   792M      0      0      0    310
@@ -55,7 +55,7 @@ func TestParseZPoolIOStat(t *testing.T) {
 	}
 
 	// 2 zpools
-	mockOut = `              capacity     operations     bandwidth 
+	mockOut = `              capacity     operations     bandwidth
 	pool        alloc   free   read  write   read  write
 	----------  -----  -----  -----  -----  -----  -----
 	tank         200M   792M      0      0      0    310

@@ -17,6 +17,7 @@ import (
 )
 
 // https://stackoverflow.com/questions/38554353/how-to-check-if-a-string-only-contains-alphabetic-characters-in-go
+// https://stackoverflow.com/questions/38554353/how-to-check-if-a-string-only-contains-alphabetic-characters-in-go
 func IsLetter(s string) bool {
 	for _, r := range s {
 		if !unicode.IsLetter(r) {
@@ -61,9 +62,6 @@ func SizeToBytes(size string) (float64, error) {
 
 	// no units
 	sizeFloat, err := strconv.ParseFloat(size, 2)
-	if err != nil {
-		return 0, fmt.Errorf("%v: sizeToBytes", err)
-	}
 	return sizeFloat, nil
 }
 
@@ -75,6 +73,8 @@ func RunZpoolIOstat(zpoolCmd *string) (string, error) {
 	}
 	return outS, err
 }
+
+/** /UTIL FUNCTIONS **/
 
 func main() {
 
@@ -111,7 +111,6 @@ func main() {
 	go func() {
 		for {
 			out, err := RunZpoolIOstat(zpoolCmd)
-			log.Printf("%v", out)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -119,8 +118,6 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			log.Printf("Retrieved zpools %v", zpools)
-
 			for _, zpool := range zpools {
 				gr.Update(zpool)
 			}

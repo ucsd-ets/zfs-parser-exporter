@@ -1,13 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
-	"math/rand"
 	"os"
-	"strings"
 	"testing"
-	"time"
 )
 
 func hostname(t *testing.T) (hostname string) {
@@ -44,41 +39,5 @@ func TestSizeToBytes(t *testing.T) {
 	_, err := SizeToBytes("130X")
 	if err == nil {
 		t.Errorf("Should have received an error at undefined unit")
-	}
-}
-
-func fakeFunc() {
-	seed := rand.NewSource(time.Now().UnixNano())
-	randGen := rand.New(seed)
-	randFloat := randGen.Float32()
-	fmt.Println(randFloat)
-}
-
-func TestRepeat(t *testing.T) {
-	rescueStdout := os.Stdout
-	c := make(chan int)
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
-	go Repeat(fakeFunc, 1, c)
-	for i := 0; i < 3; i++ {
-		time.Sleep(time.Duration(1) * time.Second)
-		if i == 2 {
-			c <- 1
-			w.Close()
-		}
-	}
-	out, _ := ioutil.ReadAll(r)
-	os.Stdout = rescueStdout
-	nums := strings.Split(string(out), "\n")
-
-	// verify that the set of nums is unique
-	numsSeen := make(map[string]bool)
-	for _, num := range nums {
-		if _, entry := numsSeen[num]; !entry {
-			numsSeen[num] = true
-		} else {
-			t.Fatal("repeat didnt recall")
-		}
 	}
 }
