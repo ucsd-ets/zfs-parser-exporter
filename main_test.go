@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"math/rand"
 	"os"
+	"strings"
 	"testing"
-
-	"github.com/prometheus/client_golang/prometheus"
+	"time"
 )
 
 func hostname(t *testing.T) (hostname string) {
@@ -16,54 +18,6 @@ func hostname(t *testing.T) (hostname string) {
 	return
 }
 
-func TestParseZPoolIOStat(t *testing.T) {
-	// only 1 zpool
-	mockOut := `              capacity     operations     bandwidth 
-	pool        alloc   free   read  write   read  write
-	----------  -----  -----  -----  -----  -----  -----
-	tank         200M   792M      0      0      0    310
-	----------  -----  -----  -----  -----  -----  -----
-	`
-	zpools, err := ParseZPoolIOStat(mockOut, hostname(t))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(zpools) != 1 {
-		t.Fatalf("Incorrect number of zpool iostat parsed. Want 2, got %d", len(zpools))
-	}
-
-	for _, zpool := range zpools {
-		zpoolsType := fmt.Sprintf("%T", zpool)
-		if zpoolsType != "main.ZPool" {
-			t.Errorf("Should have been type main.ZPool, not %s", zpoolsType)
-		}
-	}
-
-	// 2 zpools
-	mockOut = `              capacity     operations     bandwidth 
-	pool        alloc   free   read  write   read  write
-	----------  -----  -----  -----  -----  -----  -----
-	tank         200M   792M      0      0      0    310
-	test0       94.5K  79.9M      0      0    152    539
-	----------  -----  -----  -----  -----  -----  -----
-	`
-	zpools, err = ParseZPoolIOStat(mockOut, hostname(t))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(zpools) != 2 {
-		t.Fatalf("Incorrect number of zpool iostat parsed. Want 2, got %d", len(zpools))
-	}
-
-	for _, zpool := range zpools {
-		zpoolsType := fmt.Sprintf("%T", zpool)
-		if zpoolsType != "main.ZPool" {
-			t.Errorf("Should have been type main.ZPool, not %s", zpoolsType)
-		}
-	}
-}
 func TestSizeToBytes(t *testing.T) {
 	cases := []struct {
 		in   string
@@ -93,25 +47,38 @@ func TestSizeToBytes(t *testing.T) {
 	}
 }
 
-func TestRegister(t *testing.T) {
-	mockOut := `              capacity     operations     bandwidth 
-	pool        alloc   free   read  write   read  write
-	----------  -----  -----  -----  -----  -----  -----
-	tank         200M   792M      0      0      0    310
-	test0       94.5K  79.9M      0      0    152    539
-	----------  -----  -----  -----  -----  -----  -----
-	`
-	hostname := hostname(t)
-	zpools, err := ParseZPoolIOStat(mockOut, hostname)
-	if err != nil {
-		t.Fatal(err)
+func fakeFunc() {
+	seed := rand.NewSource(time.Now().UnixNano())
+	randGen := rand.New(seed)
+	randFloat := randGen.Float32()
+	fmt.Println(randFloat)
+}
+
+func TestRepeat(t *testing.T) {
+	rescueStdout := os.Stdout
+	c := make(chan int)
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	go Repeat(fakeFunc, 1, c)
+	for i := 0; i < 3; i++ {
+		time.Sleep(time.Duration(1) * time.Second)
+		if i == 2 {
+			c <- 1
+			w.Close()
+		}
 	}
-	gr := NewGaugeRegistry("")
-	gr.PrometheusRegistry = prometheus.NewRegistry()
+	out, _ := ioutil.ReadAll(r)
+	os.Stdout = rescueStdout
+	nums := strings.Split(string(out), "\n")
 
-	gr.Register(zpools[0])
-
-	if len(gr.gauges) == 0 {
-		t.Error("No gauges were registered")
+	// verify that the set of nums is unique
+	numsSeen := make(map[string]bool)
+	for _, num := range nums {
+		if _, entry := numsSeen[num]; !entry {
+			numsSeen[num] = true
+		} else {
+			t.Fatal("repeat didnt recall")
+		}
 	}
 }
