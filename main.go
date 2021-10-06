@@ -76,18 +76,6 @@ func RunZpoolIOstat(zpoolCmd *string) (string, error) {
 	return outS, err
 }
 
-func Repeat(f func(), sleepTime int, stop chan int) {
-	for {
-		select {
-		case <-stop:
-			return
-		default:
-		}
-		f()
-		time.Sleep(time.Duration(sleepTime) * time.Second)
-	}
-}
-
 func main() {
 
 	runningPort := flag.Int("port", 2112, "Host port for zfs exporter service. Defaults to 2112")
