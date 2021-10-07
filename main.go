@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"time"
 	"unicode"
@@ -65,15 +64,6 @@ func SizeToBytes(size string) (float64, error) {
 	return sizeFloat, nil
 }
 
-func RunZpoolIOstat(zpoolCmd *string) (string, error) {
-	out, err := exec.Command(*zpoolCmd, "iostat").Output()
-	outS := string(out)
-	if err != nil || outS == "" {
-		return "No zpools detected", err
-	}
-	return outS, err
-}
-
 /** /UTIL FUNCTIONS **/
 
 func main() {
@@ -89,13 +79,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// FIXME move running command to external and pass output into input of this function
-	out, err := RunZpoolIOstat(zpoolCmd)
+	out, err := RunZPoolIOstat(zpoolCmd)
 	if err != nil {
 		log.Println("NO zpools detected. Are zpools available?")
 		log.Fatal(err)
 	}
-	log.Printf("%v", out)
 
 	zpools, err := ParseZPoolIOStat(out, hostname)
 	if err != nil {
@@ -111,12 +99,11 @@ func main() {
 
 	go func() {
 		for {
-			out, err := RunZpoolIOstat(zpoolCmd)
+			out, err := RunZPoolIOstat(zpoolCmd)
 			if err != nil {
 				log.Fatal(err)
 			}
 			zpools, err := ParseZPoolIOStat(out, hostname)
-			log.Printf("Parsed zpools %v", zpools)
 			if err != nil {
 				log.Fatal(err)
 			}

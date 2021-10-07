@@ -5,12 +5,12 @@ import (
 	"testing"
 )
 
-func hostname(t *testing.T) (hostname string) {
+func Hostname() (string, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
-		t.Fatal(err)
+		return "", err
 	}
-	return
+	return hostname, nil
 }
 
 func TestSizeToBytes(t *testing.T) {
